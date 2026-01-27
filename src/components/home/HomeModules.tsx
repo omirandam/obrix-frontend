@@ -1,6 +1,7 @@
 // src/pages/HomeModules.tsx
 import React from "react";
-import iconoObrix from "../../assets/obrix_icono.png";
+import iconoObrix from "@assets/obrix_icono.png";
+import { useNavigate } from "react-router-dom";
 
 type ModuleCard = {
   id: string;
@@ -121,6 +122,10 @@ function ModuleCardView({ m }: { m: ModuleCard }) {
 }
 
 export default function HomeModules() {
+  const navigate = useNavigate();
+  const handleCerrarSesion = () => {
+    navigate("/");
+  };
   return (
     <div className="min-h-screen  w-screen bg-slate-900">
       {/* Top bar */}
@@ -149,7 +154,10 @@ export default function HomeModules() {
               </span>
             </div>
 
-            <a href="/login" className="text-[white]!  transition">
+            <a
+              onClick={handleCerrarSesion}
+              className="text-[white]!  transition cursor-pointer"
+            >
               Cerrar sesión
             </a>
           </div>
