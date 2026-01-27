@@ -120,24 +120,6 @@ function ModuleCardView({ m }: { m: ModuleCard }) {
   );
 }
 
-function ProCard({ m }: { m: ModuleCard }) {
-  return (
-    <div className="rounded-2xl border bg-slate-50 p-6 shadow-sm">
-      <div className="flex items-start gap-4">
-        <div className="text-2xl leading-none opacity-70">{m.icon}</div>
-        <div className="min-w-0">
-          <div className="text-xl font-semibold text-slate-700">{m.title}</div>
-          <div className="mt-2 text-slate-500">{m.subtitle}</div>
-        </div>
-      </div>
-
-      <div className="mt-6 max-w-[220px]">
-        <GhostButton>{m.actionLabel}</GhostButton>
-      </div>
-    </div>
-  );
-}
-
 export default function HomeModules() {
   return (
     <div className="min-h-screen  w-screen bg-slate-900">
