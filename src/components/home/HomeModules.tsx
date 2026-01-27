@@ -1,6 +1,6 @@
 // src/pages/HomeModules.tsx
 import React from "react";
-import iconoObrix from "../../../assets/obrix_icono.png";
+import iconoObrix from "../../assets/obrix_icono.png";
 
 type ModuleCard = {
   id: string;

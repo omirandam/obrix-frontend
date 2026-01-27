@@ -1,6 +1,6 @@
 import { useEffect } from "react";
-import imgLogin from "../../../assets/img-login.jpg";
-import iconoObrix from "../../../assets/obrix_icono.png";
+import imgLogin from "../../assets/img-login.jpg";
+import iconoObrix from "../../assets/obrix_icono.png";
 import { useNavigate } from "react-router-dom";
 
 export function LoginPage() {
