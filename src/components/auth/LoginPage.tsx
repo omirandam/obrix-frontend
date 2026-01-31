@@ -1,16 +1,53 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import imgLogin from "@assets/img-login.jpg";
 import iconoObrix from "@assets/obrix_icono.png";
 import { useNavigate } from "react-router-dom";
+import { api } from "../../lib/api";
+import type { LoginResponse } from "../../types/auth";
+import { useAuthStore } from "../../app/store/auth.store";
 
 export function LoginPage() {
   const navigate = useNavigate();
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const setSession = useAuthStore((s) => s.setSession);
+
   useEffect(() => {
     document.title = "Obrix - Login";
   }, []);
-  const handleLogin = () => {
-    navigate("/home");
+
+  const handleLogin = async () => {
+    if (!username.trim() || !password) {
+      alert("Completa usuario y contraseña.");
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const { data } = await api.post<LoginResponse>("/auth/login", {
+        username: username.trim(),
+        password,
+      });
+
+      setSession({
+        accessToken: data.access_token,
+        tokenType: data.token_type,
+        user: data.user,
+        company: data.company,
+        modules: data.modules,
+      });
+
+      navigate("/home", { replace: true });
+    } catch (error: any) {
+      const raw = error?.response?.data?.message;
+      const msg = Array.isArray(raw) ? raw.join(", ") : (raw ?? "Login falló");
+      alert(msg);
+    } finally {
+      setIsLoading(false);
+    }
   };
+
   return (
     <div className="min-h-screen w-screen bg-slate-900 text-slate-100 flex items-center justify-center px-4">
       <div className="w-full max-w-6xl">
@@ -59,13 +96,15 @@ export function LoginPage() {
                 <form className="mt-6 space-y-4">
                   <div>
                     <label className="block text-sm text-slate-200/80 mb-2">
-                      Email
+                      Username
                     </label>
                     <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-slate-900/40 px-3 py-2.5 focus-within:ring-2 focus-within:ring-blue-500/50">
                       <span className="text-slate-300/70">✉️</span>
                       <input
-                        type="email"
-                        placeholder="nombre@ejemplo.com"
+                        type="text"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        placeholder="username"
                         className="w-full bg-transparent outline-none placeholder:text-slate-500 text-slate-100"
                       />
                     </div>
@@ -79,6 +118,8 @@ export function LoginPage() {
                       <span className="text-slate-300/70">🔒</span>
                       <input
                         type="password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
                         placeholder="Ingresa tu contraseña"
                         className="w-full bg-transparent outline-none placeholder:text-slate-500 text-slate-100"
                       />
@@ -98,7 +139,7 @@ export function LoginPage() {
                   "
                     onClick={handleLogin}
                   >
-                    Iniciar sesión
+                    {isLoading ? "Ingresando..." : "Iniciar sesión"}
                   </button>
 
                   <div className="mt-4 text-center space-y-3">
