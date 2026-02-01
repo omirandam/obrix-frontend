@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { IconButton } from "rsuite";
 import { HeaderLayout } from "../../layout/HeaderLayout";
 import { useAuthStore } from "../../app/store/auth.store";
@@ -6,7 +6,6 @@ import { SidebarLayout } from "../../layout/SidebarLayout";
 import { useNavigate } from "react-router-dom";
 import { Drawer } from "rsuite";
 import MenuIcon from "@rsuite/icons/Menu";
-import { getUsersByCompany } from "../../services/users.api";
 import { UsersList } from "./UsersList";
 
 export function UsersPage() {
@@ -14,22 +13,7 @@ export function UsersPage() {
   const companyId = useAuthStore((s) => s.user?.companyId);
   const user = useAuthStore((s) => s.user);
   const company = useAuthStore((s) => s.company);
-  const [, setLoading] = useState(false);
   const [openSidebar, setOpenSidebar] = useState(false);
-
-  useEffect(() => {
-    if (!companyId) return;
-
-    (async () => {
-      try {
-        setLoading(true);
-        const data = await getUsersByCompany(companyId);
-        setUsers(data);
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, [companyId]);
 
   return (
     <div className="min-h-screen min-w-screen bg-slate-900">
