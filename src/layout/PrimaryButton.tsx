@@ -8,6 +8,7 @@ type PrimaryButtonProps = {
   icon?: ReactNode;
   text: string;
   url?: string;
+  click?: () => void;
 };
 
 export function PrimaryButton({
@@ -16,6 +17,7 @@ export function PrimaryButton({
   bg,
   icon,
   url,
+  click,
 }: PrimaryButtonProps) {
   const navigate = useNavigate();
   return (
@@ -25,7 +27,7 @@ export function PrimaryButton({
       style={{ backgroundColor: bg }}
       startIcon={icon}
       className="w-full"
-      onClick={() => url && navigate("/" + url)}
+      onClick={() => (url ? navigate("/" + url) : click)}
     >
       {text}
     </Button>

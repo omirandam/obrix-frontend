@@ -1,26 +1,27 @@
 import { useEffect, useMemo, useState } from "react";
 import type { User } from "../../types/auth";
-import { Table, IconButton, Pagination, Input } from "rsuite";
+import { Table, IconButton, Pagination, Input, Button } from "rsuite";
 import EditIcon from "@rsuite/icons/Edit";
 import TrashIcon from "@rsuite/icons/Trash";
 import { getUsersByCompany } from "../../services/users.api";
 import PlusIcon from "@rsuite/icons/Plus";
-import { PrimaryButton } from "../../layout/PrimaryButton";
 
 const { Column, HeaderCell, Cell } = Table;
 
 type UsersListProps = {
   companyId?: string;
+  onCreate?: () => void;
   onEdit?: (user: User) => void;
   onDelete?: (user: User) => void;
-  onUsersLoaded?: (users: User[]) => void; // opcional, por si quieres usarlo luego
+  reloadKey?: number;
 };
 
 export function UsersList({
   companyId,
+  onCreate,
   onEdit,
   onDelete,
-  onUsersLoaded,
+  reloadKey,
 }: UsersListProps) {
   const [loading, setLoading] = useState(false);
   const [users, setUsers] = useState<User[]>([]);
@@ -51,12 +52,11 @@ export function UsersList({
         setLoading(true);
         const data = await getUsersByCompany(companyId);
         setUsers(data);
-        onUsersLoaded?.(data);
       } finally {
         setLoading(false);
       }
     })();
-  }, [companyId, onUsersLoaded]);
+  }, [companyId, reloadKey]);
 
   const handlePagination = (p: number) => setPage(p);
   const handleLimit = (l: number) => {
@@ -89,11 +89,13 @@ export function UsersList({
       {/* FILTERS */}
       <div className="flex flex-col md:flex-row md:items-center gap-3 w-full">
         <div className="w-full md:w-auto">
-          <PrimaryButton
-            text="Nuevo Usuario"
-            bg="#E4481C"
-            icon={<PlusIcon />}
-          />
+          <Button
+            appearance="primary"
+            style={{ background: "#E4481C", borderColor: "#E4481C" }}
+            onClick={onCreate}
+          >
+            <PlusIcon className="mr-3" /> Nuevo Usuario
+          </Button>
         </div>
 
         <Input
@@ -140,6 +142,13 @@ export function UsersList({
           <Column flexGrow={1}>
             <HeaderCell>Email</HeaderCell>
             <Cell>{(rowData: User) => rowData?.email}</Cell>
+          </Column>
+
+          <Column flexGrow={1}>
+            <HeaderCell>Estado</HeaderCell>
+            <Cell>
+              {(rowData: User) => (rowData?.isActive ? "Activo" : "Inactivo")}
+            </Cell>
           </Column>
 
           <Column width={200} align="center">

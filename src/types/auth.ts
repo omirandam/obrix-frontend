@@ -1,9 +1,25 @@
+export type CreateUserDto = {
+  companyId: string;
+  email: string;
+  fullName: string;
+  username: string;
+  password: string;
+  isActive: boolean;
+};
+export type UpdateUserDto = {
+  email?: string;
+  fullName?: string;
+  username?: string;
+  isActive?: boolean;
+};
+
 export type User = {
   id: string;
   companyId: string;
   username: string;
   email: string;
   fullName: string;
+  isActive?: boolean;
   createdAt?: string;
   updatedAt?: string;
 };
