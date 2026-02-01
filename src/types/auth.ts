@@ -4,6 +4,8 @@ export type User = {
   username: string;
   email: string;
   fullName: string;
+  createdAt?: string;
+  updatedAt?: string;
 };
 
 export type Company = {
