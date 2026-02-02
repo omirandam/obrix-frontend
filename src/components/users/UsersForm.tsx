@@ -1,11 +1,18 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import type { User } from "../../types/auth";
-import { Button, Drawer, Form, ButtonToolbar } from "rsuite";
-
+import {
+  Button,
+  Drawer,
+  Form,
+  ButtonToolbar,
+  SelectPicker,
+  Divider,
+} from "rsuite";
+import "./users-form.scss";
 import { createUser, updateUser } from "../../services/users.api";
 
 type UsersFormProps = {
-  mode: string;
+  mode: "create" | "edit";
   openForm: boolean;
   formValue: any;
   companyId: string;
@@ -29,93 +36,136 @@ export function UsersForm({
   setFormValue,
   setReloadKey,
 }: UsersFormProps) {
-  // ===== CREATE / EDIT (UNIFIED) =====
   const [savingForm, setSavingForm] = useState(false);
+
+  const statusOptions = useMemo(
+    () => [
+      { label: "Activo", value: true },
+      { label: "Inactivo", value: false },
+    ],
+    []
+  );
+
+  const closeDrawer = () => {
+    if (savingForm) return;
+    setOpenForm(false);
+    if (mode === "edit") setSelectedUser(null);
+    // limpia password por seguridad
+    setFormValue((prev: any) => ({ ...prev, password: "" }));
+  };
 
   return (
     <Drawer
       open={openForm}
-      onClose={() => {
-        if (savingForm) return;
-        setOpenForm(false);
-        if (mode === "edit") setSelectedUser(null);
-        // limpia password por seguridad
-        setFormValue((prev: any) => ({ ...prev, password: "" }));
-      }}
+      onClose={closeDrawer}
       placement="right"
       size="sm"
+      className="obrix-users-drawer"
     >
-      <Drawer.Header>
-        <Drawer.Title>
-          {mode === "create" ? "Nuevo usuario" : "Editar usuario"}
-        </Drawer.Title>
+      <Drawer.Header className="obrix-users-drawer__header bg-[#E4481C]">
+        <div className="flex items-center justify-between gap-3 w-full">
+          <div className="min-w-0">
+            <Drawer.Title className="obrix-users-drawer__title pl-10 text-white!">
+              {mode === "create" ? "Nuevo usuario" : "Editar usuario"}
+            </Drawer.Title>
+            <div className="text-sm text-amber-100 pl-10">
+              {mode === "create"
+                ? "Completa la información para crear el usuario."
+                : "Actualiza los datos del usuario seleccionado."}
+            </div>
+          </div>
+        </div>
       </Drawer.Header>
 
       <Drawer.Body className="bg-white">
-        <Form
-          fluid
-          formValue={formValue}
-          onChange={(v) => setFormValue(v as any)}
-        >
-          <Form.Group controlId="fullName">
-            <Form.ControlLabel>Nombre completo</Form.ControlLabel>
-            <Form.Control name="fullName" placeholder="Ej: Juan Pérez" />
-          </Form.Group>
+        <div className="px-1">
+          <Form
+            fluid
+            formValue={formValue}
+            onChange={(v) => setFormValue(v as any)}
+          >
+            <div className="grid grid-cols-1 gap-4">
+              <Form.Group controlId="fullName">
+                <Form.ControlLabel className="text-slate-700">
+                  Nombre completo
+                </Form.ControlLabel>
+                <Form.Control
+                  name="fullName"
+                  placeholder="Ej: Juan Pérez"
+                  className="obrix-input"
+                />
+              </Form.Group>
 
-          <Form.Group controlId="username">
-            <Form.ControlLabel>Username</Form.ControlLabel>
-            <Form.Control name="username" placeholder="Ej: jperez" />
-          </Form.Group>
+              <Form.Group controlId="username">
+                <Form.ControlLabel className="text-slate-700">
+                  Username
+                </Form.ControlLabel>
+                <Form.Control
+                  name="username"
+                  placeholder="Ej: jperez"
+                  className="obrix-input"
+                />
+              </Form.Group>
 
-          <Form.Group controlId="email">
-            <Form.ControlLabel>Email</Form.ControlLabel>
-            <Form.Control
-              name="email"
-              type="email"
-              placeholder="Ej: jperez@mail.com"
-            />
-          </Form.Group>
+              <Form.Group controlId="email">
+                <Form.ControlLabel className="text-slate-700">
+                  Email
+                </Form.ControlLabel>
+                <Form.Control
+                  name="email"
+                  type="email"
+                  placeholder="Ej: jperez@mail.com"
+                  className="obrix-input"
+                />
+              </Form.Group>
 
-          <Form.Group controlId="password">
-            <Form.ControlLabel>
-              {mode === "create" ? "Password" : "Nueva password (opcional)"}
-            </Form.ControlLabel>
-            <Form.Control
-              name="password"
-              type="password"
-              autoComplete="new-password"
-              placeholder={
-                mode === "create" ? "••••••••" : "Dejar vacío para no cambiar"
-              }
-            />
-          </Form.Group>
+              <Form.Group controlId="password">
+                <Form.ControlLabel className="text-slate-700">
+                  {mode === "create" ? "Password" : "Nueva password (opcional)"}
+                </Form.ControlLabel>
+                <Form.Control
+                  name="password"
+                  type="password"
+                  autoComplete="new-password"
+                  placeholder={
+                    mode === "create"
+                      ? "••••••••"
+                      : "Dejar vacío para no cambiar"
+                  }
+                  className="obrix-input"
+                />
+                {mode === "edit" && (
+                  <div className="text-xs text-slate-500 mt-1">
+                    Si no quieres cambiarla, deja este campo vacío.
+                  </div>
+                )}
+              </Form.Group>
 
-          <Form.Group controlId="isActive">
-            <Form.ControlLabel>Estado</Form.ControlLabel>
-            <Form.Control
-              name="isActive"
-              accepter={(props: any) => (
-                <select
-                  className="w-full border border-slate-300 rounded-md px-3 py-2"
-                  value={String(props.value)}
-                  onChange={(e) => props.onChange?.(e.target.value === "true")}
-                >
-                  <option value="true">Activo</option>
-                  <option value="false">Inactivo</option>
-                </select>
-              )}
-            />
-          </Form.Group>
+              <Form.Group controlId="isActive">
+                <Form.ControlLabel className="text-slate-700">
+                  Estado
+                </Form.ControlLabel>
 
-          <div className="mt-6">
+                <Form.Control
+                  name="isActive"
+                  accepter={SelectPicker}
+                  data={statusOptions}
+                  searchable={false}
+                  cleanable={false}
+                  placement="autoVertical"
+                  style={{ width: "100%" }}
+                  className="obrix-select"
+                />
+              </Form.Group>
+            </div>
+
+            <Divider className="!my-6" />
+
             <ButtonToolbar className="flex justify-end gap-2">
               <Button
                 appearance="subtle"
                 disabled={savingForm}
-                onClick={() => {
-                  setOpenForm(false);
-                  setFormValue((prev: any) => ({ ...prev, password: "" }));
-                }}
+                onClick={closeDrawer}
               >
                 Cancelar
               </Button>
@@ -180,8 +230,6 @@ export function UsersForm({
                     setOpenForm(false);
                     setSelectedUser(null);
                     setFormValue((prev: any) => ({ ...prev, password: "" }));
-
-                    // refresca lista
                     setReloadKey((x: any) => x + 1);
                   } catch (e: any) {
                     showToast(
@@ -199,8 +247,8 @@ export function UsersForm({
                 {mode === "create" ? "Crear usuario" : "Guardar cambios"}
               </Button>
             </ButtonToolbar>
-          </div>
-        </Form>
+          </Form>
+        </div>
       </Drawer.Body>
     </Drawer>
   );

@@ -11,6 +11,7 @@ import { UsersList } from "./UsersList";
 import type { User } from "../../types/auth";
 import { deleteUser } from "../../services/users.api";
 import { UsersForm } from "./UsersForm";
+import "./users-delete-modal.scss";
 
 type FormMode = "create" | "edit";
 export function UsersPage() {
@@ -167,23 +168,36 @@ export function UsersPage() {
           setOpenDelete(false);
           setSelectedUser(null);
         }}
-        size="xs"
+        size="md"
+        className="obrix-delete-modal"
+        backdrop="static"
+        keyboard={!deleting}
       >
-        <Modal.Header>
-          <Modal.Title>Eliminar usuario</Modal.Title>
+        <Modal.Header className="obrix-delete-modal__header">
+          <Modal.Title className="obrix-delete-modal__title">
+            <span className="font-semibold text-slate-900">
+              Eliminar usuario
+            </span>
+          </Modal.Title>
         </Modal.Header>
 
-        <Modal.Body>
-          <p className="text-slate-700">
-            ¿Seguro que deseas eliminar a{" "}
-            <span className="font-semibold">{selectedUser?.fullName}</span>?
-          </p>
-          <p className="text-slate-500 text-sm mt-2">
-            Esta acción no se puede deshacer.
-          </p>
+        <Modal.Body className="obrix-delete-modal__body">
+          <div className="text-slate-800">
+            <div className="text-sm text-slate-500 mb-2">
+              Esta acción no se puede deshacer.
+            </div>
+
+            <div className="text-base">
+              ¿Seguro que deseas eliminar a{" "}
+              <span className="font-semibold text-slate-900">
+                {selectedUser?.fullName}
+              </span>
+              ?
+            </div>
+          </div>
         </Modal.Body>
 
-        <Modal.Footer>
+        <Modal.Footer className="obrix-delete-modal__footer">
           <Button
             appearance="subtle"
             disabled={deleting}
@@ -191,14 +205,15 @@ export function UsersPage() {
               setOpenDelete(false);
               setSelectedUser(null);
             }}
+            className="obrix-btn-subtle"
           >
             Cancelar
           </Button>
 
           <Button
             appearance="primary"
-            color="red"
             loading={deleting}
+            className="obrix-btn-danger"
             onClick={async () => {
               if (!selectedUser) return;
 
@@ -210,7 +225,6 @@ export function UsersPage() {
                 setOpenDelete(false);
                 setSelectedUser(null);
 
-                // refresca lista
                 setReloadKey((x) => x + 1);
               } catch (e: any) {
                 showToast(

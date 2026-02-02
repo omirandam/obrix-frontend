@@ -1,10 +1,21 @@
 import { useEffect, useMemo, useState } from "react";
 import type { User } from "../../types/auth";
-import { Table, IconButton, Pagination, Input, Button } from "rsuite";
+import {
+  Table,
+  IconButton,
+  Pagination,
+  Input,
+  Button,
+  InputGroup,
+  Whisper,
+  Tooltip,
+} from "rsuite";
 import EditIcon from "@rsuite/icons/Edit";
 import TrashIcon from "@rsuite/icons/Trash";
-import { getUsersByCompany } from "../../services/users.api";
 import PlusIcon from "@rsuite/icons/Plus";
+import SearchIcon from "@rsuite/icons/Search";
+import { getUsersByCompany } from "../../services/users.api";
+import "./users-list.scss";
 
 const { Column, HeaderCell, Cell } = Table;
 
@@ -58,23 +69,15 @@ export function UsersList({
     })();
   }, [companyId, reloadKey]);
 
-  const handlePagination = (p: number) => setPage(p);
-  const handleLimit = (l: number) => {
-    setLimit(l);
-    setPage(1);
-  };
-
   useEffect(() => {
+    const full = filterFullname.trim().toLowerCase();
+    const user = filterUsername.trim().toLowerCase();
+    const email = filterEmail.trim().toLowerCase();
+
     const result = users
-      .filter((x) =>
-        x?.fullName?.toLowerCase().includes(filterFullname.toLowerCase())
-      )
-      .filter((x) =>
-        x?.username?.toLowerCase().includes(filterUsername.toLowerCase())
-      )
-      .filter((x) =>
-        x?.email?.toLowerCase().includes(filterEmail.toLowerCase())
-      );
+      .filter((x) => (full ? x?.fullName?.toLowerCase().includes(full) : true))
+      .filter((x) => (user ? x?.username?.toLowerCase().includes(user) : true))
+      .filter((x) => (email ? x?.email?.toLowerCase().includes(email) : true));
 
     setFilteredData(result);
   }, [filterFullname, filterUsername, filterEmail, users]);
@@ -84,91 +87,190 @@ export function UsersList({
     return filteredData.slice(start, start + limit);
   }, [filteredData, page, limit]);
 
+  const handlePagination = (p: number) => setPage(p);
+  const handleLimit = (l: number) => {
+    setLimit(l);
+    setPage(1);
+  };
+
+  // Zebra + hover
+  const rowClassName = (_rowData: User, rowIndex?: number) => {
+    if (rowIndex == null) return "";
+    return rowIndex % 2 === 0 ? "obrix-row-even" : "obrix-row-odd";
+  };
+
+  const StatusPill = ({ active }: { active: boolean }) => (
+    <span
+      className={[
+        "inline-flex items-center gap-2",
+        "px-3 py-1 rounded-full text-xs font-semibold",
+        active
+          ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200"
+          : "bg-slate-100 text-slate-600 ring-1 ring-slate-200",
+      ].join(" ")}
+    >
+      <span
+        className={[
+          "w-2 h-2 rounded-full",
+          active ? "bg-emerald-500" : "bg-slate-400",
+        ].join(" ")}
+      />
+      {active ? "Activo" : "Inactivo"}
+    </span>
+  );
+
+  const EmptyState = () => (
+    <div className="py-10 text-center">
+      <div className="text-slate-900 font-semibold">Sin usuarios</div>
+      <div className="text-slate-500 text-sm mt-1">
+        Ajusta los filtros o crea un nuevo usuario.
+      </div>
+      <div className="mt-4">
+        <Button
+          appearance="primary"
+          style={{ background: "#E4481C", borderColor: "#E4481C" }}
+          onClick={onCreate}
+        >
+          <PlusIcon className="mr-2" /> Nuevo Usuario
+        </Button>
+      </div>
+    </div>
+  );
+
   return (
-    <>
-      {/* FILTERS */}
-      <div className="flex flex-col md:flex-row md:items-center gap-3 w-full">
-        <div className="w-full md:w-auto">
+    <div>
+      {/* HEADER / FILTERS */}
+      <div className="flex flex-col gap-4">
+        <div className="flex justify-end">
           <Button
             appearance="primary"
             style={{ background: "#E4481C", borderColor: "#E4481C" }}
             onClick={onCreate}
+            className="md:w-auto w-full"
           >
-            <PlusIcon className="mr-3" /> Nuevo Usuario
+            <PlusIcon className="mr-2" /> Nuevo Usuario
           </Button>
         </div>
 
-        <Input
-          placeholder="Buscar por nombre..."
-          value={filterFullname}
-          onChange={setFilterFullname}
-          className="w-full md:w-[220px]"
-        />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <InputGroup className="w-full">
+            <InputGroup.Addon>
+              <SearchIcon />
+            </InputGroup.Addon>
+            <Input
+              placeholder="Buscar por nombre..."
+              value={filterFullname}
+              onChange={setFilterFullname}
+            />
+          </InputGroup>
 
-        <Input
-          placeholder="Buscar por username..."
-          value={filterUsername}
-          onChange={setFilterUsername}
-          className="w-full md:w-[220px]"
-        />
+          <InputGroup className="w-full">
+            <InputGroup.Addon>
+              <SearchIcon />
+            </InputGroup.Addon>
+            <Input
+              placeholder="Buscar por username..."
+              value={filterUsername}
+              onChange={setFilterUsername}
+            />
+          </InputGroup>
 
-        <Input
-          placeholder="Buscar por email..."
-          value={filterEmail}
-          onChange={setFilterEmail}
-          className="w-full md:w-[220px]"
-        />
+          <InputGroup className="w-full">
+            <InputGroup.Addon>
+              <SearchIcon />
+            </InputGroup.Addon>
+            <Input
+              placeholder="Buscar por email..."
+              value={filterEmail}
+              onChange={setFilterEmail}
+            />
+          </InputGroup>
+        </div>
       </div>
 
-      {/* ================= TABLE ================= */}
+      {/* TABLE */}
       <div className="mt-5 overflow-x-auto">
         <Table<User, any>
+          className="obrix-users-table"
+          rowClassName={rowClassName}
           data={paginatedData}
-          autoHeight
           loading={loading}
-          rowHeight={55}
+          autoHeight
+          rowHeight={56}
           wordWrap="break-word"
+          bordered={false}
+          cellBordered={false}
+          renderEmpty={EmptyState}
         >
-          <Column flexGrow={1}>
-            <HeaderCell>Nombre</HeaderCell>
-            <Cell>{(rowData: User) => rowData?.fullName}</Cell>
-          </Column>
-
-          <Column flexGrow={1}>
-            <HeaderCell>Username</HeaderCell>
-            <Cell>{(rowData: User) => rowData?.username}</Cell>
-          </Column>
-
-          <Column flexGrow={1}>
-            <HeaderCell>Email</HeaderCell>
-            <Cell>{(rowData: User) => rowData?.email}</Cell>
-          </Column>
-
-          <Column flexGrow={1}>
-            <HeaderCell>Estado</HeaderCell>
-            <Cell>
-              {(rowData: User) => (rowData?.isActive ? "Activo" : "Inactivo")}
+          <Column flexGrow={1} minWidth={220}>
+            <HeaderCell className="obrix-header-cell">
+              <span className="text-[14px]">Nombre</span>
+            </HeaderCell>
+            <Cell className="obrix-cell">
+              {(rowData: User) => (
+                <div className="flex flex-col">
+                  <span className="font-medium text-slate-900">
+                    {rowData?.fullName || "-"}
+                  </span>
+                  <span className="text-xs text-slate-500">
+                    @{rowData?.username || "-"}
+                  </span>
+                </div>
+              )}
             </Cell>
           </Column>
 
-          <Column width={200} align="center">
-            <HeaderCell>Acciones</HeaderCell>
-            <Cell>
+          <Column flexGrow={1} minWidth={240}>
+            <HeaderCell className="obrix-header-cell">
+              <span className="text-[14px]">Email</span>
+            </HeaderCell>
+            <Cell className="obrix-cell">
+              {(rowData: User) => (
+                <span className="text-slate-700">{rowData?.email || "-"}</span>
+              )}
+            </Cell>
+          </Column>
+
+          <Column width={160} align="center">
+            <HeaderCell className="obrix-header-cell">
+              <span className="text-[14px]">Estado</span>
+            </HeaderCell>
+            <Cell className="obrix-cell">
+              {(rowData: User) => <StatusPill active={!!rowData?.isActive} />}
+            </Cell>
+          </Column>
+
+          <Column width={160} align="center" fixed="right">
+            <HeaderCell className="obrix-header-cell">
+              <span className="text-[14px]">Acciones</span>
+            </HeaderCell>
+            <Cell className="obrix-cell">
               {(rowData: User) => (
                 <div className="flex justify-center gap-2">
-                  <IconButton
-                    appearance="subtle"
-                    size="lg"
-                    icon={<EditIcon />}
-                    onClick={() => onEdit?.(rowData)}
-                  />
+                  <Whisper placement="top" speaker={<Tooltip>Editar</Tooltip>}>
+                    <IconButton
+                      appearance="subtle"
+                      size="lg"
+                      circle
+                      icon={<EditIcon />}
+                      onClick={() => onEdit?.(rowData)}
+                      className="obrix-action-btn obrix-action-edit"
+                    />
+                  </Whisper>
 
-                  <IconButton
-                    appearance="subtle"
-                    size="lg"
-                    icon={<TrashIcon />}
-                    onClick={() => onDelete?.(rowData)}
-                  />
+                  <Whisper
+                    placement="top"
+                    speaker={<Tooltip>Eliminar</Tooltip>}
+                  >
+                    <IconButton
+                      appearance="subtle"
+                      size="lg"
+                      circle
+                      icon={<TrashIcon />}
+                      onClick={() => onDelete?.(rowData)}
+                      className="obrix-action-btn obrix-action-delete"
+                    />
+                  </Whisper>
                 </div>
               )}
             </Cell>
@@ -176,8 +278,13 @@ export function UsersList({
         </Table>
       </div>
 
-      {/* ================= PAGINATION ================= */}
-      <div className="w-full flex justify-center mt-5">
+      {/* PAGINATION */}
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mt-5">
+        <div className="text-sm text-slate-500">
+          Página {page} · Mostrando {paginatedData.length} de{" "}
+          {filteredData.length}
+        </div>
+
         <Pagination
           prev
           next
@@ -193,6 +300,6 @@ export function UsersList({
           onChangeLimit={handleLimit}
         />
       </div>
-    </>
+    </div>
   );
 }

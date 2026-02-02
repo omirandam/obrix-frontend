@@ -1,0 +1,61 @@
+/* ===============================
+   Users List – Table Styles
+   =============================== */
+
+.obrix-users-table {
+  /* Header */
+  .rs-table-header-row-wrapper {
+    background-color: #ffffff;
+  }
+
+  .rs-table-row {
+    border-bottom: 1px solid rgba(15, 23, 42, 0.06);
+    transition: background-color 0.12s ease;
+  }
+
+  /* Zebra rows */
+  .obrix-row-even .rs-table-cell-content {
+    background-color: #ffffff !important;
+  }
+
+  .obrix-row-odd .rs-table-cell-content {
+    background-color: #f8fafc !important; // slate-50
+  }
+
+  /* Hover */
+  .rs-table-row:hover .rs-table-cell-content {
+    background-color: #e2e8f0 !important; // slate-200
+  }
+
+  /* Header cells */
+  .obrix-header-cell {
+    font-weight: 700;
+    color: #0f172a; // slate-900
+    font-size: 12px;
+    letter-spacing: 0.02em;
+  }
+
+  /* Body cells */
+  .obrix-cell {
+    color: #334155; // slate-700
+  }
+
+  /* Action buttons */
+  .obrix-action-btn {
+    transition:
+      transform 0.08s ease,
+      background 0.12s ease;
+
+    &:active {
+      transform: scale(0.96);
+    }
+  }
+
+  .obrix-action-edit:hover {
+    background-color: rgba(59, 130, 246, 0.1) !important;
+  }
+
+  .obrix-action-delete:hover {
+    background-color: rgba(239, 68, 68, 0.1) !important;
+  }
+}
