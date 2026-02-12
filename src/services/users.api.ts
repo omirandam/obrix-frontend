@@ -18,3 +18,18 @@ export async function updateUser(userId: string, payload: UpdateUserDto) {
   const { data } = await api.patch<User>(`/users/${userId}`, payload);
   return data;
 }
+
+export const getAvailableModulesForUser = async (userId: string) => {
+  const { data } = await api.get(`/${userId}/available-modules`);
+  return data;
+};
+
+export const getUserModules = async (userId: string) => {
+  const { data } = await api.get(`/${userId}/modules`);
+  return data;
+};
+
+export const setUserModules = async (userId: string, moduleIds: string[]) => {
+  const { data } = await api.put(`/${userId}/modules`, { moduleIds });
+  return data;
+};

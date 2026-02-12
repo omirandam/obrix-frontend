@@ -16,6 +16,7 @@ import PlusIcon from "@rsuite/icons/Plus";
 import SearchIcon from "@rsuite/icons/Search";
 import { getUsersByCompany } from "../../services/users.api";
 import "./users-list.scss";
+import GridIcon from "@rsuite/icons/Grid";
 
 const { Column, HeaderCell, Cell } = Table;
 
@@ -25,6 +26,7 @@ type UsersListProps = {
   onEdit?: (user: User) => void;
   onDelete?: (user: User) => void;
   reloadKey?: number;
+  onModules?: (user: User) => void;
 };
 
 export function UsersList({
@@ -33,6 +35,7 @@ export function UsersList({
   onEdit,
   onDelete,
   reloadKey,
+  onModules,
 }: UsersListProps) {
   const [loading, setLoading] = useState(false);
   const [users, setUsers] = useState<User[]>([]);
@@ -247,6 +250,17 @@ export function UsersList({
             <Cell className="obrix-cell">
               {(rowData: User) => (
                 <div className="flex justify-center gap-2">
+                  <Whisper placement="top" speaker={<Tooltip>Módulos</Tooltip>}>
+                    <IconButton
+                      appearance="subtle"
+                      size="lg"
+                      circle
+                      icon={<GridIcon />}
+                      onClick={() => onModules?.(rowData)}
+                      className="obrix-action-btn"
+                    />
+                  </Whisper>
+
                   <Whisper placement="top" speaker={<Tooltip>Editar</Tooltip>}>
                     <IconButton
                       appearance="subtle"

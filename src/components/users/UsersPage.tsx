@@ -12,6 +12,7 @@ import type { User } from "../../types/auth";
 import { deleteUser } from "../../services/users.api";
 import { UsersForm } from "./UsersForm";
 import "./users-delete-modal.scss";
+import { UserModulesDrawer } from "./UserModulesDrawer";
 
 type FormMode = "create" | "edit";
 export function UsersPage() {
@@ -36,6 +37,8 @@ export function UsersPage() {
       { placement: "topEnd", duration: 3000 }
     );
   };
+
+  const [openModules, setOpenModules] = useState(false);
 
   // ===== DELETE =====
   const [openDelete, setOpenDelete] = useState(false);
@@ -115,6 +118,15 @@ export function UsersPage() {
         setFormValue={setFormValue}
         setReloadKey={setReloadKey}
       />
+      {/* ================= Asignar modulos ================= */}
+      <UserModulesDrawer
+        open={openModules}
+        user={selectedUser}
+        onClose={() => setOpenModules(false)}
+        onSaved={() => setReloadKey((x) => x + 1)}
+        showToast={showToast}
+      />
+
       {/* ================= MAIN LAYOUT ================= */}
       <div className="flex w-full">
         <aside className="hidden md:block w-64 bg-[#0B1224] text-white min-h-screen">
@@ -154,6 +166,10 @@ export function UsersPage() {
               onDelete={(u) => {
                 setSelectedUser(u);
                 setOpenDelete(true);
+              }}
+              onModules={(u) => {
+                setSelectedUser(u);
+                setOpenModules(true);
               }}
             />
           </div>
