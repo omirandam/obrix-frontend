@@ -11,13 +11,15 @@ export function ModuleCardView({ modulo, url }: ModuleCardViewProps) {
     <div className="rounded-2xl border bg-white p-6 shadow-sm min-h-[170px] bg-transparent border-transparent shadow-none">
       {
         <>
-          <div className="flex items-start gap-4">
-            <div className="text-3xl leading-none">{modulo.icon}</div>
-            <div className="min-w-0">
-              <div className="text-xl font-semibold text-slate-900">
+          <div className="min-w-0">
+            <div className="flex justify-left">
+              <div className="text-2xl leading-none">{modulo.icon}</div>
+              <div className="text-xl font-semibold text-slate-900 pl-2">
                 {modulo.name}
               </div>
-              <div className="mt-2 text-slate-500">{modulo.description}</div>
+            </div>
+            <div className="mt-2 text-slate-500 text-left mt-5">
+              {modulo.description}
             </div>
           </div>
 
