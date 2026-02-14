@@ -11,6 +11,16 @@ export const APP_MODULES: AppModuleConfig[] = [
     url: "obras",
   },
   {
+    key: "CATALOGOS",
+    icon: "📚",
+    url: "catalogos",
+  },
+  {
+    key: "OPERACION",
+    icon: "🛠️",
+    url: "operacion",
+  },
+  {
     key: "COSTOS",
     icon: "💰",
     url: "costos",
